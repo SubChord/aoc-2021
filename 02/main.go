@@ -6,40 +6,51 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func main() {
 	lines := readLines("inp")
-	numbers := parseNumbers(lines)
 
-	pt1 := 0
-	for i := 1; i < len(numbers); i++ {
-		if numbers[i-1] < numbers[i] {
-			pt1++
+	part1(lines)
+	part2(lines)
+}
+
+func part1(lines []string) {
+	pt1x, pt1y := 0, 0
+	for _, line := range lines {
+		split := strings.Split(line, " ")
+		v, _ := strconv.Atoi(split[1])
+		switch split[0] {
+		case "forward":
+			pt1x += v
+		case "up":
+			pt1y -= v
+		case "down":
+			pt1y += v
 		}
 	}
 
-	fmt.Printf("Part 1: %d\n", pt1)
-
-	pt2 := 0
-	for i := 3; i < len(numbers); i++ {
-		s3 := numbers[i-3] + numbers[i-2] + numbers[i-1]
-		s2 := numbers[i-2] + numbers[i-1] + numbers[i]
-		if s2 > s3 {
-			pt2++
-		}
-    }
-
-	fmt.Printf("Part 2: %d\n", pt2)
+	fmt.Printf("Part 1: %d\n", pt1x*pt1y)
 }
 
-func parseNumbers(lines []string) []int {
-	numbers := make([]int,0, len(lines))
-    for _, line := range lines {
-		atoi, _ := strconv.Atoi(line)
-		numbers = append(numbers, atoi)
-    }
-    return numbers
+func part2(lines []string) {
+	x, y, aim := 0, 0, 0
+	for _, line := range lines {
+		split := strings.Split(line, " ")
+		v, _ := strconv.Atoi(split[1])
+		switch split[0] {
+		case "forward":
+			x += v
+			y += aim * v
+		case "up":
+			aim -= v
+		case "down":
+			aim += v
+		}
+	}
+
+	fmt.Printf("Part 2: %d\n", x*y)
 }
 
 func readLines(path string) []string {
