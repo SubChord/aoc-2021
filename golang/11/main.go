@@ -12,9 +12,11 @@ import (
 func main() {
 	lines := readLines("inp")
 	g := grid{}
+	g2 := grid{}
 
 	for _, line := range lines {
 		ints := []int{}
+		ints2 := []int{}
 		split := strings.Split(line, "")
 		for _, s := range split {
 			i, err := strconv.Atoi(s)
@@ -22,20 +24,36 @@ func main() {
 				log.Fatal(err)
 			}
 			ints = append(ints, i)
+			ints2 = append(ints2, i)
 		}
 		g = append(g, ints)
+		g2 = append(g2, ints2)
 	}
 
 	part1(g)
+	part2(g2)
 }
 
 func part1(g grid) {
 	s := 0
 	for i := 0; i < 100; i++ {
 		s += g.step()
-		g.print()
 	}
 	fmt.Println(s)
+}
+
+func part2(g2 grid) {
+	size := len(g2) * len(g2[0])
+	step := 0
+	for {
+		step++
+		flashes := g2.step()
+		if flashes == size {
+			break
+		}
+	}
+
+	fmt.Println(step)
 }
 
 type grid [][]int
@@ -49,46 +67,45 @@ func (g grid) step() int {
 	}
 
 	flashed := map[string]bool{}
-	i := 0
 	firstLoop := true
-	somethingFlashed := true
-	for somethingFlashed || firstLoop {
-		somethingFlashed = false
-		for j := range g[i] {
-			if g[i][j] > 9 && !flashed[fmt.Sprintf("%d,%d", i, j)] {
-				// increment adjacent cells including diagonals
-				flashCount++
-				if i > 0 {
-					g[i-1][j]++
+	flashInLastLoop := false
+	for flashInLastLoop || firstLoop {
+		firstLoop = false
+		flashInLastLoop = false
+		for i := range g {
+			for j, _ := range g[i] {
+				key := fmt.Sprintf("i%vj%v", i, j)
+				if g[i][j] > 9 && !flashed[key] {
+					flashInLastLoop = true
+					flashCount++
+					// increment adjacent cells including diagonals
+					if i > 0 {
+						g[i-1][j]++
+					}
+					if i < len(g)-1 {
+						g[i+1][j]++
+					}
+					if j > 0 {
+						g[i][j-1]++
+					}
+					if j < len(g[i])-1 {
+						g[i][j+1]++
+					}
+					if i > 0 && j > 0 {
+						g[i-1][j-1]++
+					}
+					if i > 0 && j < len(g[i])-1 {
+						g[i-1][j+1]++
+					}
+					if i < len(g)-1 && j > 0 {
+						g[i+1][j-1]++
+					}
+					if i < len(g)-1 && j < len(g[i])-1 {
+						g[i+1][j+1]++
+					}
+					flashed[key] = true
 				}
-				if i < len(g)-1 {
-					g[i+1][j]++
-				}
-				if j > 0 {
-					g[i][j-1]++
-				}
-				if j < len(g[i])-1 {
-					g[i][j+1]++
-				}
-				if i > 0 && j > 0 {
-					g[i-1][j-1]++
-				}
-				if i > 0 && j < len(g[i])-1 {
-					g[i-1][j+1]++
-				}
-				if i < len(g)-1 && j > 0 {
-					g[i+1][j-1]++
-				}
-				if i < len(g)-1 && j < len(g[i])-1 {
-					g[i+1][j+1]++
-				}
-				flashed[fmt.Sprintf("i%vj%v", i, j)] = true
-				somethingFlashed = true
 			}
-		}
-		i = (i + 1) % len(g)
-		if i == 0 {
-			firstLoop = false
 		}
 	}
 
